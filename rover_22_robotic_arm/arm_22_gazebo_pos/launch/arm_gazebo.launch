@@ -15,9 +15,11 @@
     <param name="robot_description" command="xacro --inorder $(find arm_22_gazebo_pos)/urdf/assembly.urdf.xacro" />
 
 
-    <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model arm_22_gazebo_pos" output="screen" />
+    <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-z 1.2 -Y -1.57 -urdf -param robot_description -model arm_22_gazebo_pos" output="screen" />
     <!-- robot state publisher-->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
     <include file="$(find arm_control)/launch/arm_22_controllers_pos.launch" />
+    <rosparam command="load" file="$(find rover_22_description)/config/control.yaml" />
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="rover_joint_publisher rover_steering_controller rover_wheel_leftfront rover_wheel_rightfront rover_wheel_leftrear rover_wheel_rightrear" />
 </launch>
