@@ -1,4 +1,3 @@
-
 [submodule "blender_gazebo"]
 	path = blender_gazebo
 	url = https://github.com/Kokjix/blender_gazebo
