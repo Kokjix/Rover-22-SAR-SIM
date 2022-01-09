@@ -6,6 +6,7 @@
 #include "trajectory_msgs/JointTrajectory.h"
 #include "trajectory_msgs/JointTrajectoryPoint.h"
 #include "std_msgs/Float64.h"
+#include <ros/console.h>
 #include <cmath>
 #include <iomanip>
 
@@ -88,7 +89,7 @@ private:
 	ros::Publisher right_finger_publisher;
 	ros::Publisher left_finger_publisher;
 	ros::Subscriber arm_joy;
-	ros::Subscriber arm_mod_switch;
+	//ros::Subscriber arm_mod_switch;
 	double arm[6];
 	double arm_delta_theta[6];
 	double gripper_delta_theta[2];
@@ -102,20 +103,7 @@ public:
 		right_finger_publisher = nh->advertise<std_msgs::Float64>("rover_arm_right_finger/command",10);
 		left_finger_publisher = nh->advertise<std_msgs::Float64>("/rover_arm_left_finger/command",10);
 		arm_joy = nh->subscribe("/joy", 10, &RobotArm::arm_joy_cb,this);
-		//arm_mod_switch = nh->subscribe("/joy", 10, &RobotArm::arm_joy_mod_switch,this);
 
-		
-		/*for (int i = 0; i < 6; i++)
-		{
-			arm[i] = 0.0;
-			arm_delta_theta[i] = 0.0;
-		}
-		
-		for (int i = 0; i < 2; i++)
-		{
-			gripper_delta_theta[i] = 0.0;
-			gripper[i] = 0.0;
-		}*/
 		
 		while (ros::ok && !(second_stage))
         {
@@ -184,8 +172,10 @@ public:
 		for(double& c: arm) arm_point.positions.push_back(c);
 		arm_point.time_from_start =ros::Duration(0.005); 
         arm_msg.points.push_back(arm_point);
-		std::cout << arm_msg << std::endl;
-        arm_publisher.publish(arm_msg);
+		
+		ROS_INFO_STREAM(arm_msg);
+        
+		arm_publisher.publish(arm_msg);
 		std_msgs::Float64 gripper_pub[2];
 		gripper_pub[0].data = gripper[0];
 		gripper_pub[1].data = gripper[1];
@@ -198,5 +188,170 @@ public:
 
 	}
 };
+
+class steering
+{
+private:
+    double Pi = M_PI;
+
+
+    ros::Publisher pub_steer;
+    ros::Publisher pub_wheel[4];
+	ros::Publisher arm_mode_pub; //= nh.advertise<std_msgs::Float64>("/arm_mode",10);
+    geometry_msgs::Twist twist;
+    ros::Subscriber twistSub;
+    double _eps = pow(10,-7);
+    double zeroPos[4]={Pi/2,Pi/2,Pi/2,Pi/2};
+    //double zeroPos[4]={0,0,0,0};
+
+    trajectory_msgs::JointTrajectory steering_msg;
+    trajectory_msgs::JointTrajectoryPoint steering_points;
+
+    double steer_arr[4] = {0,0,0,0};
+    int    wheel_arr[4] = {0,0,0,0};
+
+
+public:
+    steering(ros::NodeHandle *nh){
+        std::cout << std::fixed;
+        std::cout << std::setprecision(11);
+        pub_steer = nh->advertise<trajectory_msgs::JointTrajectory>("/rover_steering_controller/command",10);
+        ros::Rate rate(150);
+        pub_wheel[0] = nh->advertise<std_msgs::Float64>("/rover_wheel_leftfront/command" ,10);
+        pub_wheel[1] = nh->advertise<std_msgs::Float64>("/rover_wheel_leftrear/command" ,10);
+        pub_wheel[2] = nh->advertise<std_msgs::Float64>("/rover_wheel_rightfront/command",10);
+        pub_wheel[3] = nh->advertise<std_msgs::Float64>("/rover_wheel_rightrear/command" ,10);
+		arm_mode_pub = nh->advertise<std_msgs::Float64>("/arm_mode",10);
+		std_msgs::Float64 arm_on;
+        arm_on.data = 0.0;
+        arm_mode_pub.publish(arm_on);
+
+        pub_steer = nh->advertise<trajectory_msgs::JointTrajectory>("/rover_steering_controller/command",10);
+
+
+        steering_msg.joint_names= {"steering_leftfront_joint",
+                                    "steering_leftrear_joint" ,
+                                    "steering_rightrear_joint",
+                                    "steering_rightfront_joint"} ; 
+
+      
+        twistSub = nh->subscribe("/drive_system/twist",10,&steering::twist_cb,this);
+        ros::Subscriber joy_steering_Sub = nh->subscribe("/joy", 10, &steering::steering_joy_cb,this);
+        while (ros::ok && second_stage)
+        {
+                if ((joy_msg.get_button(7) == 1) && !(first_stage))
+                {
+                    first_stage = true;
+                }
+                if ((first_stage) && joy_msg.get_button(7) == 0)
+                {
+                    if (second_stage)
+                    {
+                        second_stage = false;
+                    }
+
+                    else
+                    {
+                        second_stage = true;
+                    }
+            
+                    first_stage = false;
+            
+                }
+            
+            ros::spinOnce();
+            action();
+            rate.sleep();
+            signal(1, SigintHandler);
+            
+        }
+        
+    }
+
+    void steering_joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
+        joy_msg.set_buttons(msg->buttons[0],msg->buttons[1],msg->buttons[2],msg->buttons[3],msg->buttons[4],msg->buttons[5],msg->buttons[6],msg->buttons[7],msg->buttons[8],msg->buttons[9],msg->buttons[10],msg->buttons[11]);
+        //cout << joy_msg.get_button(7)<<endl;
+    }
+    void twist_cb(const geometry_msgs::Twist& msg){
+        twist =msg;
+    }
+
+    void tank_rotation(){
+
+        trajectory_msgs::JointTrajectory steering_msg;
+        steering_msg.joint_names= {"steering_leftfront_joint",
+                                    "steering_leftrear_joint" ,
+                                    "steering_rightrear_joint",
+                                    "steering_rightfront_joint"} ; 
+        trajectory_msgs::JointTrajectoryPoint steering_points;
+        for (int i = 0; i < 4; i++) steer_arr[i]= Pi/4 *(((i%2==1)-.5)*2);
+
+        for(double& c: steer_arr) steering_points.positions.push_back(c);
+        steering_points.time_from_start =ros::Duration(0.005); 
+        steering_msg.points.push_back(steering_points);
+        pub_steer.publish(steering_msg);
+
+        std_msgs::Float64 z[4];
+
+        for (int i = 0; i < 4; i++) z[i].data = twist.angular.z*1.7584/2*Pi*(((i>1)-.5)*2);
+        for (int i = 0; i < 4; i++) pub_wheel[i].publish(z[i]); 
+        
+        //cout << twist.angular.z<< endl;
+    }
+
+    double stLim(double steer_deg, double dDeg) {
+        //cout<<fmod(  steer_deg+dDeg  ,  Pi+_eps)  -Pi/2. << endl;;
+        return fmod(  steer_deg+dDeg  ,  Pi+_eps)  -Pi/2. ;}
+
+    void cartesian_wheel_rot(double deg){
+        
+        trajectory_msgs::JointTrajectory steering_msg;
+        steering_msg.joint_names= {"steering_leftfront_joint",
+                                    "steering_leftrear_joint" ,
+                                    "steering_rightrear_joint",
+                                    "steering_rightfront_joint"} ; 
+        trajectory_msgs::JointTrajectoryPoint steering_points;
+
+        for (int i = 0; i < 4; i++) steer_arr[i]= stLim(zeroPos[i],deg);
+        //cout<< steer_arr[0]<<"  "<< steer_arr[1]<<"  "<< steer_arr[2]<<"  "<< steer_arr[3]<<"  "<<endl;
+        for(double& c: steer_arr) steering_points.positions.push_back(c);
+        steering_points.time_from_start =ros::Duration(0.005); 
+        steering_msg.points.push_back(steering_points);
+        pub_steer.publish(steering_msg);
+
+        std_msgs::Float64 z[4];
+        for (int i = 0; i < 4; i++) z[i].data = pow(pow(twist.linear.x,2)+pow(twist.linear.y,2),.5)*(((twist.linear.x>=0)-.5)*2);
+        for (int i = 0; i < 4; i++) pub_wheel[i].publish(z[i]); 
+
+    }
+
+    void cartesian_motion(){
+        double degWheel = atan((twist.linear.y)/(twist.linear.x+_eps));
+        if  (isnan(degWheel))  {degWheel=0;} 
+        //cout << "vec degree --->  "<<degWheel<<endl;
+        cartesian_wheel_rot(degWheel);
+    }
+
+    void action(){
+        if (twist.angular.z){
+            tank_rotation();
+        }else{
+            cartesian_motion();
+        }
+    }
+
+    ~steering(){
+
+    }
+};
+
+/*
+steering::steering()
+{
+}
+
+steering::~steering()
+{
+}*/
 
 

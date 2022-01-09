@@ -2,11 +2,13 @@
 #include "ros/ros.h"
 #include "sensor_msgs/Joy.h"
 #include "geometry_msgs/Twist.h"
+#include "std_msgs/Float64.h"
 #include <iostream>
 #include <signal.h>
 
 using namespace std;
 
+bool arm_mode = true;
 void mySigintHandler(int sig)
 {
   // Do some custom action.
@@ -27,6 +29,19 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
   //joy2twist(msg);
 }
 
+void arm_mode_checker(const std_msgs::Float64::ConstPtr& msg)
+{
+  if (msg->data == 1)
+  {
+    arm_mode = true;
+  }
+  else if (msg->data == 0)
+  {
+    arm_mode = false;
+  }
+  
+  
+}
 geometry_msgs::Twist twist;
 
 
@@ -34,7 +49,11 @@ void joy2twist(const sensor_msgs::Joy::ConstPtr& msg){
   twist.angular.z = msg->axes[0]*2*3.1415926535;
   twist.linear.x = msg->axes[4]*10;
   twist.linear.y = msg->axes[3]*10;
-  cout << twist << endl;
+
+  if (!(arm_mode))
+  {
+    ROS_INFO_STREAM_THROTTLE(0.1,twist);
+  }
 }
 
 int main(int argc, char **argv)
@@ -47,6 +66,7 @@ int main(int argc, char **argv)
 
   ros::Rate rate(150);
   ros::Subscriber joySub = nh.subscribe("/joy", 10, joy2twist);
+  ros::Subscriber arm_mod_check = nh.subscribe("/arm_mode", 10, arm_mode_checker);
   
   while (ros::ok)
   {
