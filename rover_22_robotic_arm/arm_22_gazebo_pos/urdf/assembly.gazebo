@@ -74,7 +74,7 @@
   <xacro:arg name="use_nominal_extrinsics" default="True" />
 
   <sensor_d435 parent="5_6_link_1"> <!-- d435 connect to link 5 -->
-    <origin xyz="0.0 0.0 0.12" rpy="0 0 -1.57" /> <!-- location of d435-->
+    <origin xyz="0.0 0.0 0.12" rpy="0 0.401425728 -1.57" /> <!-- location of d435-->
   </sensor_d435>
 <!-- 2 fpv camera pyhsicla propotions-->
 <link name="camera">

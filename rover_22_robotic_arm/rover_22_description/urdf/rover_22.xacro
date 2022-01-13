@@ -18,12 +18,12 @@
       </geometry>
       <material name="silver" />
     </visual>
-    <collision>
+    <!-- <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
         <mesh filename="package://rover_22_description/meshes/base_link.stl" scale="0.001 0.001 0.001" />
       </geometry>
-    </collision>
+    </collision> -->
   </link>
 
   <link name="steering_leftfront_link_1">
@@ -39,12 +39,12 @@
       </geometry>
       <material name="silver" />
     </visual>
-    <collision>
+    <!-- <collision>
       <origin rpy="0 0 0" xyz="0.071 -0.460515 0.071298" />
       <geometry>
         <mesh filename="package://rover_22_description/meshes/steering_leftfront_link_1.stl" scale="0.001 0.001 0.001" />
       </geometry>
-    </collision>
+    </collision> -->
   </link>
 
   <link name="steering_leftrear_link_1">
@@ -60,12 +60,12 @@
       </geometry>
       <material name="silver" />
     </visual>
-    <collision>
+    <!-- <collision>
       <origin rpy="0 0 0" xyz="0.071 0.460515 0.071298" />
       <geometry>
         <mesh filename="package://rover_22_description/meshes/steering_leftrear_link_1.stl" scale="0.001 0.001 0.001" />
       </geometry>
-    </collision>
+    </collision> -->
   </link>
 
   <link name="steering_rightrear_link_1">
@@ -81,12 +81,12 @@
       </geometry>
       <material name="silver" />
     </visual>
-    <collision>
+    <!-- <collision>
       <origin rpy="0 0 0" xyz="-0.851 0.460515 0.071298" />
       <geometry>
         <mesh filename="package://rover_22_description/meshes/steering_rightrear_link_1.stl" scale="0.001 0.001 0.001" />
       </geometry>
-    </collision>
+    </collision> -->
   </link>
 
   <link name="steering_rightfront_link_1">
@@ -102,12 +102,12 @@
       </geometry>
       <material name="silver" />
     </visual>
-    <collision>
+    <!-- <collision>
       <origin rpy="0 0 0" xyz="-0.851 -0.460515 0.071298" />
       <geometry>
         <mesh filename="package://rover_22_description/meshes/steering_rightfront_link_1.stl" scale="0.001 0.001 0.001" />
       </geometry>
-    </collision>
+    </collision> -->
   </link>
 
   <link name="wheel_leftfront_link_1">
