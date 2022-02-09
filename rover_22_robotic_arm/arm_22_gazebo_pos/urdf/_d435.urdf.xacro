@@ -64,12 +64,12 @@ aluminum peripherial evaluation case.
         </geometry>
         <material name="${name}_aluminum"/>
       </visual>
-      <collision>
+      <!-- <collision>
         <origin xyz="0 ${-d435_cam_depth_py} 0" rpy="0 0 0"/>
         <geometry>
         <box size="${d435_cam_depth} ${d435_cam_width} ${d435_cam_height}"/>
         </geometry>
-      </collision>
+      </collision> -->
       <inertial>
         <!-- The following are not reliable values, and should not be used for modeling -->
         <mass value="0.564" />
