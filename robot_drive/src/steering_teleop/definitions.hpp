@@ -167,8 +167,8 @@ public:
     	arm_delta_theta[3] = -joy_msg.get_axis(3) * 0.03;
     	arm_delta_theta[4] = -joy_msg.get_axis(7) * 0.03;
     	arm_delta_theta[5] = joy_msg.get_axis(6) * 0.06;
-		gripper_delta_theta[0] = (joy_msg.get_button(1) - joy_msg.get_button(3)) * 0.03;  // right finger 
-    	gripper_delta_theta[1] = (-joy_msg.get_button(1) + joy_msg.get_button(3)) * 0.03; // left finger
+		gripper_delta_theta[0] = (joy_msg.get_button(1) - joy_msg.get_button(0)) * 0.0005;  // right finger 
+    	gripper_delta_theta[1] = (-joy_msg.get_button(1) + joy_msg.get_button(0)) * 0.0005; // left finger
 
 
 		for (int i = 0; i < 6; i++)

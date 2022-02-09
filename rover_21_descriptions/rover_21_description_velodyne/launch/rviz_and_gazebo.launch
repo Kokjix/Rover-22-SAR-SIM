@@ -1,0 +1,9 @@
+<launch>
+<!-- 
+@author: Baran Berk Bağcı-->
+
+    <!-- Launch both rviz and gazebo-->
+    <include file="$(find rover_21_description_velodyne)/launch/gazebo.launch" />
+    <include file="$(find rover_21_description_velodyne)/launch/velodyne_rviz.launch" />
+
+</launch>

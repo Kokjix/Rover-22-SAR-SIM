@@ -2,7 +2,7 @@
 <robot name="rover_22" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:include filename="$(find rover_22_description_velodyne)/urdf/vlp16.urdf.xacro" />
-  <xacro:property name="cameraSize" value="0.05" />
+  <xacro:property name="cameraSize" value="0.02" />
   <xacro:property name="cameraMass" value="0.1" />
   <xacro:include filename="$(find rover_22_description_velodyne)/urdf/materials.xacro" />
   <xacro:include filename="$(find rover_22_description_velodyne)/urdf/rover_22.trans" />
@@ -254,7 +254,7 @@
   <vlp16 prefix="base" topic="/velodyne_points" hz="10" samples="440" gpu="true" max_range="5.0" min_range="0.1" min_angle="-2.39982772" max_angle="2.39982772" />
 
   <joint name="base_laser_joint" type="fixed">
-    <origin xyz="0.45 0.30 0.12" rpy="0 0 1.57" />
+    <origin xyz="0.45 -0.1 0.09" rpy="0 0 1.57" />
     <parent link="base_link" />
     <child link="velodyne" />
   </joint>
@@ -286,7 +286,7 @@
 
   <joint name="camera_joint" type="fixed">
     <axis xyz="1 1 0" />
-    <origin xyz="0.45 0.30 0.22" rpy="0 0 1.57" />
+    <origin xyz="0.45 -0.10 0.19" rpy="0 0 1.57" />
     <parent link="base_link" />
     <child link="camera" />
   </joint>
